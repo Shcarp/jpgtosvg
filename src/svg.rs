@@ -1,6 +1,10 @@
+use crate::utils;
+
 use visioncortex::{Color, CompoundPath, PointF64};
 use wasm_bindgen::JsValue;
 use web_sys::{Blob, BlobPropertyBag, Element, Url, XmlSerializer, js_sys::JSON};
+use utils::log;
+
 
 pub fn window() -> web_sys::Window {
     web_sys::window().unwrap()
@@ -36,17 +40,34 @@ impl Svg {
     }
 
     pub fn get_svg_string(&self) -> String {
+		let sequence = match XmlSerializer::new() {
+			Ok(s) => {
+				match s.serialize_to_string(&self.element) {
+					Ok(s) => s,
+					Err(e) => format!("{:#?}", e),
+				}
+			},
+			Err(e) => format!("{:#?}", e),
+		};
 
-		let sequence = XmlSerializer::new().unwrap().serialize_to_string(&self.element).unwrap();
+		log(&sequence);
 
         let blob = Blob::new_with_str_sequence_and_options(
 			&JsValue::from_str(&sequence),
-			BlobPropertyBag::new().type_("image/svg+xml"),
+			BlobPropertyBag::new().type_("octet/stream"),
 		);
 
 		match blob {
 			Ok(blob) => {
-				Url::create_object_url_with_blob(&blob).unwrap()
+				match Url::create_object_url_with_blob(&blob) {
+					Ok(url) => {
+						match JSON::stringify(&JsValue::from_str(&url)) {
+							Ok(s) => s.as_string().unwrap(),
+							Err(e) => format!("{:#?}", e),
+						}
+					},
+					Err(e) => format!("{:#?}", e),
+				}
 			},
 			Err(e) => format!("{:#?}", e),
 		}

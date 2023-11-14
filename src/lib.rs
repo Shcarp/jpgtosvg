@@ -119,7 +119,7 @@ pub enum Stage {
 
 
 #[wasm_bindgen]
-pub struct BinaryImageConverter {
+pub struct ColorImageConverter {
 	debug: bool,
 	counter: usize,
 	mode: PathSimplifyMode,
@@ -132,7 +132,7 @@ pub struct BinaryImageConverter {
 }
 
 #[wasm_bindgen]
-impl BinaryImageConverter {
+impl ColorImageConverter {
 	#[wasm_bindgen(constructor)]
 	// Tsify automatically converts params using serde_wasm_bindgen::from_value(params) where params was JsValue
 	pub fn new(
